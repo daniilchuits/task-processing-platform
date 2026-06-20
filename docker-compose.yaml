@@ -1,0 +1,22 @@
+services:
+  gateway-api: #TODO
+
+  auth-service: #TODO
+
+  auth-postgres: #TODO
+
+  task-service: #TODO
+
+  tasks-postgres: #TODO
+
+  queue-service: #TODO
+
+  worker: #TODO 3 workers
+
+  file-service: #TODO
+
+  file-postgres: #TODO
+
+  notification-service: #TODO
+
+  notification-postgres: #TODO
