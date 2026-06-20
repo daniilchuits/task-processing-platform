@@ -13,7 +13,7 @@ func NewDbManager(db *sql.DB) *dbManager {
 func (manager *dbManager) Create() error {
 
 	query := `
-		CREATE IF NOT EXISTS TABLE users(
+		CREATE TABLE IF NOT EXISTS users(
 			id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 			login TEXT NOT NULL,
 			hashed_password TEXT NOT NULL

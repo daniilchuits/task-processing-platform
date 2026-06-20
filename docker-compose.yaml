@@ -40,6 +40,9 @@ services:
     volumes:
       - pgauth:/var/lib/postgresql/data
 
+  logger: #TODO
+    image: alpine
+
   task-service: #TODO
     image: alpine
 

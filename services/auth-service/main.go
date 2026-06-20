@@ -2,6 +2,7 @@ package main
 
 import (
 	"auth/database"
+	"auth/internal/handlers"
 	"auth/internal/repo"
 	"context"
 	"database/sql"
@@ -48,7 +49,13 @@ func main() {
 	repoManager := repo.NewRepoManager(db)
 	// repoManager228
 
+	check := repoManager
+	insert := repoManager
+
+	register := handlers.NewRegisterHandler(check, insert)
+
 	r := chi.NewRouter()
+	r.Post("/auth/register", register.RegisterUser)
 
 	srv := &http.Server{
 		Addr:    ":8081",

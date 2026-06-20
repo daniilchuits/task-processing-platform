@@ -15,7 +15,7 @@ import (
 
 func main() {
 
-	auth := "http://localhost:8081/auth-service"
+	auth := "http://auth-service:8081"
 
 	authURL, err := url.Parse(auth)
 	if err != nil {
