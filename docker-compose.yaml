@@ -1,22 +1,72 @@
 services:
-  gateway-api: #TODO
+  gateway-api: 
+    build: ./services/gateway-api
+    ports:
+      - "8080:8080"
+    environment:
+      - JWT=${JWT-SECRET}
+    networks:
+      - frontend
 
-  auth-service: #TODO
+  auth-service: 
+    build: ./services/auth-service
+    environment:
+      - DB_HOST=auth-postgres
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${AUTH_PASSWORD}
+      - DB_NAME=${AUTH_DB}
+      - JWT=${JWT-SECRET}
+    depends_on:
+      auth-postgres:
+        condition: service_healthy
+    networks:
+      - frontend
+      - backend
 
-  auth-postgres: #TODO
+  auth-postgres: 
+    image: postgres:17
+    environment:
+      - POSTGRES_DB=${AUTH_DB}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${AUTH_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${AUTH_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    networks:
+      - backend
+    volumes:
+      - pgauth:/var/lib/postgresql/data
 
   task-service: #TODO
+    image: alpine
 
   tasks-postgres: #TODO
+    image: alpine
 
   queue-service: #TODO
+    image: alpine
 
   worker: #TODO 3 workers
+    image: alpine
 
   file-service: #TODO
+    image: alpine
 
   file-postgres: #TODO
+    image: alpine
 
   notification-service: #TODO
+    image: alpine
 
   notification-postgres: #TODO
+    image: alpine
+
+volumes:
+  pgauth:
+
+networks:
+  frontend:
+  backend:
