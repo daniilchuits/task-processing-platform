@@ -2,10 +2,12 @@ package main
 
 import (
 	"context"
+	jwtmiddlewear "gateway/internal/jwt_middlewear"
 	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
 	"os/signal"
 	"syscall"
 	"time"
@@ -15,6 +17,8 @@ import (
 
 func main() {
 
+	jwtSecret := os.Getenv("JWT")
+
 	auth := "http://auth-service:8081"
 
 	authURL, err := url.Parse(auth)
@@ -22,7 +26,12 @@ func main() {
 		log.Println("Err parsing auth url:", err)
 		return
 	}
+
+	secret := jwtmiddlewear.NewSecret(jwtSecret)
+
 	authProxy := httputil.NewSingleHostReverseProxy(authURL)
+
+	secret.JwtMiddlewear()
 
 	r := chi.NewRouter()
 

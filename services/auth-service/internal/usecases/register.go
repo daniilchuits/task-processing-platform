@@ -11,24 +11,29 @@ type RegisterUsecase struct {
 	InsertCredentials interfaces.InsertCredentialsInterface
 }
 
-func (register RegisterUsecase) Exec(credentials domain.Credentials) (int, error) {
+func (register RegisterUsecase) Exec(credentials domain.Credentials) (*domain.Credentials, error) {
 
 	exists, err := register.UserExists.UserExists(credentials.Login)
 	if err != nil {
 		log.Println("Error checking if user exists:", err)
-		return 0, err
+		return nil, err
 	}
 	if exists {
 		log.Println(domain.ErrUserExists.Error())
-		return 0, domain.ErrUserExists
+		return nil, domain.ErrUserExists
 	}
 
-	// do hashing password epta
+	hashedPassword, err := domain.Hashing(credentials.Password)
+	if err != nil {
+		log.Println("Hashing err:", err)
+		return nil, domain.ErrDuringHashing
+	}
+	credentials.Password = string(hashedPassword)
 
-	id, err := register.InsertCredentials.InsertCredentials(credentials)
+	cred, err := register.InsertCredentials.InsertCredentials(credentials)
 	if err != nil {
 		log.Println("Error inserting user:", err)
-		return 0, err
+		return nil, err
 	}
-	return id, nil
+	return cred, nil
 }

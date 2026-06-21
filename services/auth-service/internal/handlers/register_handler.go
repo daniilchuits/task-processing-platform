@@ -50,7 +50,7 @@ func (reg *registerHandler) RegisterUser(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	id, err := reg.uc.Exec(credDomain)
+	domainCred, err := reg.uc.Exec(credDomain)
 	if err != nil {
 
 		if errors.Is(err, domain.ErrUserExists) {
@@ -63,7 +63,7 @@ func (reg *registerHandler) RegisterUser(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if err = json.NewEncoder(w).Encode(transportation.ToHttp(id, credDomain)); err != nil {
+	if err = json.NewEncoder(w).Encode(transportation.ToHttp(*domainCred)); err != nil {
 		http.Error(w, "Error encoding credentials", 500)
 		return
 	}

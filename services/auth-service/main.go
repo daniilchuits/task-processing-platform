@@ -23,12 +23,12 @@ func main() {
 	user := os.Getenv("DB_USER")
 	password := os.Getenv("DB_PASSWORD")
 	dbName := os.Getenv("DB_NAME")
+	secret := os.Getenv("JWT")
 
 	cnnStr := fmt.Sprintf(
 		"host=auth-postgres user=%s password=%s dbname=%s sslmode=disable",
 		user, password, dbName,
 	)
-	log.Println("CnnStr:", cnnStr)
 
 	db, err := sql.Open("postgres", cnnStr)
 	if err != nil {
@@ -51,11 +51,14 @@ func main() {
 
 	check := repoManager
 	insert := repoManager
+	sel := repoManager
 
 	register := handlers.NewRegisterHandler(check, insert)
+	login := handlers.NewLoginHandler(check, sel, secret)
 
 	r := chi.NewRouter()
 	r.Post("/auth/register", register.RegisterUser)
+	r.Post("/auth/login", login.LoginUser)
 
 	srv := &http.Server{
 		Addr:    ":8081",

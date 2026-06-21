@@ -2,9 +2,9 @@ package transportation
 
 import "auth/internal/domain"
 
-func ToHttp(id int, cred domain.Credentials) Credentials {
+func ToHttp(cred domain.Credentials) Credentials {
 	return Credentials{
-		Id:       id,
+		Id:       cred.Id,
 		Login:    cred.Login,
 		Password: cred.Password,
 	}
