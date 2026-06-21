@@ -3,7 +3,6 @@ package jwtmiddlewear
 import (
 	"gateway/internal/domain"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -49,13 +48,13 @@ func (scr secretKey) JwtMiddlewear(next http.Handler) http.Handler {
 			return
 		}
 
-		userId, ok := claims["user_id"].(float64)
+		userId, ok := claims["user_id"].(string)
 		if !ok {
 			http.Error(w, domain.ErrNotFound.Error(), 404)
 			return
 		}
 
 		r.Header.Del("user_id")
-		r.Header.Set("user_id", strconv.Itoa(int(userId)))
+		r.Header.Set("user_id", userId)
 	})
 }

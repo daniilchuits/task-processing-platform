@@ -1,11 +1,11 @@
 FROM golang:1.26.4-alpine AS builder
-WORKDIR /services/auth-service
+WORKDIR /services/tasks-service
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -o app .
 
 FROM gcr.io/distroless/static-debian12
-WORKDIR /services/auth-service
-COPY --from=builder /services/auth-service/app app
+WORKDIR /services/tasks-service
+COPY --from=builder /services/tasks-service/app app
 CMD [ "./app" ]

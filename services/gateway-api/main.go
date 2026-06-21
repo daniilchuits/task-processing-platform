@@ -17,21 +17,29 @@ import (
 
 func main() {
 
+	// slog.Log() // добавить продвинутый логер в каждом сервисе
+	// узнать как вообще сервисы получают свой logger
+
 	jwtSecret := os.Getenv("JWT")
+	secret := jwtmiddlewear.NewSecret(jwtSecret)
 
 	auth := "http://auth-service:8081"
+	tasks := "http://tasks-service:8082"
 
 	authURL, err := url.Parse(auth)
 	if err != nil {
 		log.Println("Err parsing auth url:", err)
 		return
 	}
-
-	secret := jwtmiddlewear.NewSecret(jwtSecret)
+	tasksURL, err := url.Parse(tasks)
+	if err != nil {
+		log.Println("Err parsing tasks url:", err)
+		return
+	}
 
 	authProxy := httputil.NewSingleHostReverseProxy(authURL)
 
-	secret.JwtMiddlewear()
+	taskProxy := secret.JwtMiddlewear(httputil.NewSingleHostReverseProxy(tasksURL))
 
 	r := chi.NewRouter()
 
@@ -43,6 +51,10 @@ func main() {
 	r.Handle(
 		"/auth/*",
 		authProxy,
+	)
+	r.Handle(
+		"/task/*",
+		taskProxy,
 	)
 
 	ctx, stop := signal.NotifyContext(
@@ -57,7 +69,6 @@ func main() {
 
 	<-ctx.Done()
 
-	log.Println("Gateway-api ends")
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
 		5*time.Second,
