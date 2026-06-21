@@ -56,5 +56,7 @@ func (scr secretKey) JwtMiddlewear(next http.Handler) http.Handler {
 
 		r.Header.Del("user_id")
 		r.Header.Set("user_id", userId)
+
+		next.ServeHTTP(w, r)
 	})
 }

@@ -42,16 +42,36 @@ services:
     volumes:
       - pgauth:/var/lib/postgresql/data
 
-  tasks-service: #TODO
+  tasks-service: 
     build: ./services/tasks-service
-    ports:
-      - "8082:8082"
+    environment:
+      - USER=${DB_USER}
+      - DB=${TASKS_DB}
+      - PASSWORD=${TASKS_PASSWORD}
+      - HOST=tasks_postgres
+    depends_on:
+      tasks-postgres:
+        condition: service_healthy
     networks:
       - frontend
       - backend
 
-  tasks-postgres: #TODO
-    image: alpine
+  tasks-postgres: 
+    image: postgres:17
+    environment:
+      - POSTGRES_DB=${TASKS_DB}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${TASKS_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${TASKS_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    networks:
+      - backend
+    volumes:
+      - pgtasks:/var/lib/postgresql/data
 
   queue-service: #TODO
     image: alpine
@@ -73,6 +93,7 @@ services:
 
 volumes:
   pgauth:
+  pgtasks:
 
 networks:
   frontend:

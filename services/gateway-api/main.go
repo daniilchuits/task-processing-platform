@@ -38,8 +38,9 @@ func main() {
 	}
 
 	authProxy := httputil.NewSingleHostReverseProxy(authURL)
+	tasksProxy := httputil.NewSingleHostReverseProxy(tasksURL)
 
-	taskProxy := secret.JwtMiddlewear(httputil.NewSingleHostReverseProxy(tasksURL))
+	tasksProtected := secret.JwtMiddlewear(tasksProxy)
 
 	r := chi.NewRouter()
 
@@ -54,7 +55,7 @@ func main() {
 	)
 	r.Handle(
 		"/task/*",
-		taskProxy,
+		tasksProtected,
 	)
 
 	ctx, stop := signal.NotifyContext(
