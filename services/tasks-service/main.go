@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"syscall"
 	"task-service/database"
+	"task-service/internal/handlers"
 	"task-service/internal/repo"
 	"time"
 
@@ -27,7 +28,6 @@ func main() {
 		"host=tasks-postgres user=%s password=%s dbname=%s sslmode=disable",
 		user, password, dbname,
 	)
-	log.Println(cnnStr)
 
 	db, err := sql.Open("postgres", cnnStr)
 	if err != nil {
@@ -45,10 +45,21 @@ func main() {
 	}
 
 	repoManager := repo.NewRepoManager(db)
-	// доделать insert в insert_task_usecase
-	// сделать эндпоинт с POST task
+
+	taskExists := repoManager
+	insertTask := repoManager
+	selectTasks := repoManager
+	selectTask := repoManager
+
+	insertTaskHandler := handlers.NewInsertHandler(taskExists, insertTask)
+	selectTasksHandler := handlers.NewSelectHandler(selectTasks)
+	selectTaskHandler := handlers.NewSelectOneTaskHandler(selectTask)
 
 	r := chi.NewMux()
+
+	r.Post("/task", insertTaskHandler.InsertTask)
+	r.Get("/task", selectTasksHandler.SelectAllTasks)
+	r.Get("/task/{id}", selectTaskHandler.SelectTaskById)
 
 	srv := &http.Server{
 		Addr:    ":8082",

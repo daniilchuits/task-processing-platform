@@ -7,6 +7,7 @@ services:
       - JWT=${JWT-SECRET}
     depends_on:
       - auth-service
+      - tasks-service
     networks:
       - frontend
 

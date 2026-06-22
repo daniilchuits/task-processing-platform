@@ -6,32 +6,37 @@ import (
 	"task-service/internal/interfaces"
 )
 
-type insertUsecase struct {
-	exists interfaces.CheckingExistence
-	insert interfaces.NoteInserter
+type InsertUsecase struct {
+	Exists interfaces.CheckingExistence
+	Insert interfaces.NoteInserter
 }
 
-func (insert *insertUsecase) Exec(userId int, filename domain.Filename) error {
+func (insert *InsertUsecase) Exec(userId int, filename domain.Filename) (*domain.Task, error) {
 
-	exists, err := insert.exists.NoteExists(userId, filename.Name)
+	if err := domain.FilenameValidation(filename); err != nil {
+		return nil, err
+	}
+
+	exists, err := insert.Exists.NoteExists(userId, filename.Name)
 	if err != nil {
 		log.Println(domain.ErrChecking, ":", err)
-		return domain.ErrChecking
+		return nil, domain.ErrChecking
 	}
 	if exists {
-		return domain.ErrExists
+		return nil, domain.ErrExists
 	}
 
 	typ, err := domain.DetermineType(filename.Name)
 	if err != nil {
 		log.Println(err)
-		return domain.ErrInvalidExtension
+		return nil, domain.ErrInvalidExtension
 	}
 
-	if err = insert.insert.InsertNote(userId, filename.Name, typ); err != nil { //
+	task, err := insert.Insert.InsertNote(userId, filename.Name, typ)
+	if err != nil { //
 		log.Println("Error inserting:", err)
-		return domain.ErrInserting
+		return nil, domain.ErrInserting
 	}
 
-	return nil
+	return task, nil
 }

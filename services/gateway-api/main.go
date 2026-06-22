@@ -50,11 +50,11 @@ func main() {
 	}
 
 	r.Handle(
-		"/auth/*",
+		"/auth*",
 		authProxy,
 	)
 	r.Handle(
-		"/task/*",
+		"/task*",
 		tasksProtected,
 	)
 
