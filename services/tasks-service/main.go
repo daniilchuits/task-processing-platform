@@ -57,7 +57,9 @@ func main() {
 
 	r := chi.NewMux()
 
-	r.Post("/task", insertTaskHandler.InsertTask)
+	r.Post("/task", insertTaskHandler.InsertTask) // карочи переделать, чтобы POST /task
+	// принимал не названия файлов, а сами файлы, и уже когда файл будет передаваться
+	// воркеру, он в процессе выполнения файла, меняел его статус
 	r.Get("/task", selectTasksHandler.SelectAllTasks)
 	r.Get("/task/{id}", selectTaskHandler.SelectTaskById)
 

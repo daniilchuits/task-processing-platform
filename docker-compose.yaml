@@ -75,7 +75,10 @@ services:
       - pgtasks:/var/lib/postgresql/data
 
   queue-service: #TODO
-    image: alpine
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
 
   worker: #TODO 3 workers
     image: alpine
