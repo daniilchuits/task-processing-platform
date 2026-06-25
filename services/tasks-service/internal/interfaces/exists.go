@@ -1,5 +1,5 @@
 package interfaces
 
-type CheckingExistence interface {
-	NoteExists(userId int, filename string) (bool, error)
+type Checker interface {
+	Check(userID int, filename string) (bool, error)
 }

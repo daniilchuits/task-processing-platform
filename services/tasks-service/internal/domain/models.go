@@ -1,13 +1,10 @@
 package domain
 
-type Filename struct {
-	Name string
-}
-
 type Task struct {
 	Id                 int
 	UserId             string
 	Filename           string
+	Filepath           string
 	Status             string
 	Typ                string
 	PhraseCountTxt     *int

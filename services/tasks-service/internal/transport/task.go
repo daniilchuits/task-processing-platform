@@ -4,6 +4,7 @@ type Task struct {
 	Id                 int    `json:"id"`
 	UserId             string `json:"user_id"`
 	Filename           string `json:"filename"`
+	Filepath           string `json:"filepath"`
 	Status             string `json:"status"`
 	Typ                string `json:"type"`
 	PhraseCountTxt     int    `json:"phrase_count,omitempty"`

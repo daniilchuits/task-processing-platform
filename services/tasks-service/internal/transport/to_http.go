@@ -7,6 +7,7 @@ func ToHTTPTask(task domain.Task) Task {
 		Id:       task.Id,
 		UserId:   task.UserId,
 		Filename: task.Filename,
+		Filepath: task.Filepath,
 		Status:   task.Status,
 		Typ:      task.Typ,
 	}

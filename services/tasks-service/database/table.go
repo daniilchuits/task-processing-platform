@@ -17,6 +17,7 @@ func (manager dbManager) CreateTable() error {
 			id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 			user_id INT NOT NULL,
 			filename TEXT NOT NULL,
+			filepath TEXT NOT NULL,
 			status TEXT NOT NULL,
 			type TEXT NOT NULL,
 			phrase_count_txt INT,

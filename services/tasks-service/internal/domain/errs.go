@@ -9,20 +9,26 @@ var (
 	// Determine
 	ErrInvalidExtension error = errors.New("Invalid extensionn")
 
+	// CreateFile
+	ErrFileExists error = errors.New("File with this name already exists")
+	ErrCreating   error = errors.New("Error during creating file")
+	ErrCopy       error = errors.New("Error to copy file")
+
 	// Regexp
 	ErrRegexp error = errors.New("Invalid filename")
 
 	// Convert
-	ErrConvUserId error = errors.New("Conv 'user_id' from request error")
+	ErrConvUserId  error = errors.New("Conv 'user_id' from request error")
+	ErrEmptyUserId error = errors.New("Empty 'user_id' in request")
 
 	// Encoding
 	ErrEncoding error = errors.New("Error encoding")
 
 	// Insert
-	ErrChecking         error = errors.New("Error during checking if note already exists")
-	ErrExists           error = errors.New("That filename is already in the table")
-	ErrInserting        error = errors.New("Error during inserting note")
-	ErrDecodingFilename error = errors.New("Error decoding filename")
+	ErrGetting                 error = errors.New("Error getting file")
+	ErrDuringCheckingExistence error = errors.New("Error during checking existence")
+	ErrExists                  error = errors.New("This user already has file with this name")
+	ErrInserting               error = errors.New("Inserting error")
 
 	// SelectAll
 	ErrSelectingAll error = errors.New("Error selecting all tasks for user")
@@ -30,4 +36,9 @@ var (
 	// SelectOne
 	ErrSelectingOne error = errors.New("Error selecting one task")
 	ErrStrconvId    error = errors.New("Error converting task's id")
+
+	// RabbitMQ
+	ErrMakingRabbitMQConnection    error = errors.New("Error making RabbitMQ connection")
+	ErrCreatingPublisher           error = errors.New("Error creating publisher")
+	ErrPublishingMessageToRabbitMQ error = errors.New("Error publishin mgessage to RabbitMQ")
 )

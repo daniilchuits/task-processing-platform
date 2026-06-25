@@ -29,6 +29,10 @@ func NewSelectOneTaskHandler(sel interfaces.Selecter) *selOneTask {
 func (sel *selOneTask) SelectTaskById(w http.ResponseWriter, r *http.Request) {
 
 	userIdStr := r.Header.Get("user_id")
+	if userIdStr == "" {
+		http.Error(w, domain.ErrEmptyUserId.Error(), 400)
+		return
+	}
 	userId, err := strconv.Atoi(userIdStr)
 	if err != nil {
 		log.Println(domain.ErrConvUserId, ":", userIdStr, " err:", err)

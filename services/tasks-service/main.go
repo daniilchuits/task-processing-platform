@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"task-service/database"
 	"task-service/internal/handlers"
+	"task-service/internal/messaging/rabbitmq"
 	"task-service/internal/repo"
 	"time"
 
@@ -23,6 +24,9 @@ func main() {
 	user := os.Getenv("USER")
 	dbname := os.Getenv("DB")
 	password := os.Getenv("PASSWORD")
+	brockerURI := os.Getenv("BROKER_URI")
+	log.Println("Broker URI:", brockerURI)
+	queue := os.Getenv("QUEUE_NAME")
 
 	cnnStr := fmt.Sprintf(
 		"host=tasks-postgres user=%s password=%s dbname=%s sslmode=disable",
@@ -46,20 +50,31 @@ func main() {
 
 	repoManager := repo.NewRepoManager(db)
 
-	taskExists := repoManager
-	insertTask := repoManager
+	post := repoManager
+	check := repoManager
 	selectTasks := repoManager
 	selectTask := repoManager
 
-	insertTaskHandler := handlers.NewInsertHandler(taskExists, insertTask)
+	ctx := context.Background()
+	connection, err := rabbitmq.NewConn(brockerURI, ctx)
+	if err != nil {
+		log.Fatal("Err making connection:", err)
+	}
+	if err = connection.CreateQueue(queue); err != nil {
+		log.Fatal("Creating queue error:", err)
+	}
+	myPublisher, err := connection.NewPublisher(queue)
+	if err != nil {
+		log.Fatal("Err creating publisher:", err)
+	}
+
+	postTaskHandler := handlers.NewPostHandler(check, post, *myPublisher)
 	selectTasksHandler := handlers.NewSelectHandler(selectTasks)
 	selectTaskHandler := handlers.NewSelectOneTaskHandler(selectTask)
 
 	r := chi.NewMux()
 
-	r.Post("/task", insertTaskHandler.InsertTask) // карочи переделать, чтобы POST /task
-	// принимал не названия файлов, а сами файлы, и уже когда файл будет передаваться
-	// воркеру, он в процессе выполнения файла, меняел его статус
+	r.Post("/task", postTaskHandler.PostTask)
 	r.Get("/task", selectTasksHandler.SelectAllTasks)
 	r.Get("/task/{id}", selectTaskHandler.SelectTaskById)
 

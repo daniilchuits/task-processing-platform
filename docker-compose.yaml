@@ -41,7 +41,7 @@ services:
     networks:
       - backend
     volumes:
-      - pgauth:/var/lib/postgresql/data
+      - pg_auth:/var/lib/postgresql/data
 
   tasks-service: 
     build: ./services/tasks-service
@@ -50,9 +50,15 @@ services:
       - DB=${TASKS_DB}
       - PASSWORD=${TASKS_PASSWORD}
       - HOST=tasks_postgres
+      - BROKER_URI=${BROKER_URI}
+      - QUEUE_NAME=${QUEUE_NAME}
     depends_on:
       tasks-postgres:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - ./services/tasks-service/uploads:/app/uploads
     networks:
       - frontend
       - backend
@@ -72,13 +78,23 @@ services:
     networks:
       - backend
     volumes:
-      - pgtasks:/var/lib/postgresql/data
+      - pg_tasks:/var/lib/postgresql/data
 
-  queue-service: #TODO
+  rabbitmq: 
     image: rabbitmq:management
     ports:
       - "5672:5672"
       - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - backend
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
 
   worker: #TODO 3 workers
     image: alpine
@@ -95,10 +111,11 @@ services:
   notification-postgres: #TODO
     image: alpine
 
-volumes:
-  pgauth:
-  pgtasks:
-
 networks:
   frontend:
   backend:
+
+volumes:
+  rabbitmq_data:
+  pg_tasks:
+  pg_auth:
