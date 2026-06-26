@@ -9,9 +9,8 @@ import (
 )
 
 type PostUsecase struct {
-	Check   interfaces.Checker
-	Post    interfaces.Poster
-	Publish interfaces.Publisher
+	Check interfaces.Checker
+	Post  interfaces.Poster
 }
 
 func (post *PostUsecase) Exec(userID int, file multipart.File, header *multipart.FileHeader) (*domain.Task, error) {
@@ -35,10 +34,6 @@ func (post *PostUsecase) Exec(userID int, file multipart.File, header *multipart
 	}
 
 	path := filepath.Join(domain.UploadDir, header.Filename)
-
-	if err = post.Publish.Publish([]byte(path)); err != nil {
-		return nil, domain.ErrPublishingMessageToRabbitMQ
-	}
 
 	task, err := post.Post.Insert(
 		userID,

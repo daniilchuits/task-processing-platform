@@ -10,6 +10,7 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/lib/pq v1.12.3 // indirect
+	github.com/rabbitmq/amqp091-go v1.12.0 // indirect
 	github.com/rabbitmq/rabbitmq-amqp-go-client v1.2.0 // indirect
 	go.opentelemetry.io/otel v1.43.0 // indirect
 	go.opentelemetry.io/otel/metric v1.43.0 // indirect

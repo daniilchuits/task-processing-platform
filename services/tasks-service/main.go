@@ -11,12 +11,12 @@ import (
 	"syscall"
 	"task-service/database"
 	"task-service/internal/handlers"
-	"task-service/internal/messaging/rabbitmq"
 	"task-service/internal/repo"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	_ "github.com/lib/pq"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 func main() {
@@ -27,6 +27,7 @@ func main() {
 	brockerURI := os.Getenv("BROKER_URI")
 	log.Println("Broker URI:", brockerURI)
 	queue := os.Getenv("QUEUE_NAME")
+	amqp.Dial() // заново подключить брокер, не забыть hostname: rabbitmq
 
 	cnnStr := fmt.Sprintf(
 		"host=tasks-postgres user=%s password=%s dbname=%s sslmode=disable",
@@ -56,19 +57,7 @@ func main() {
 	selectTask := repoManager
 
 	ctx := context.Background()
-	connection, err := rabbitmq.NewConn(brockerURI, ctx)
-	if err != nil {
-		log.Fatal("Err making connection:", err)
-	}
-	if err = connection.CreateQueue(queue); err != nil {
-		log.Fatal("Creating queue error:", err)
-	}
-	myPublisher, err := connection.NewPublisher(queue)
-	if err != nil {
-		log.Fatal("Err creating publisher:", err)
-	}
 
-	postTaskHandler := handlers.NewPostHandler(check, post, *myPublisher)
 	selectTasksHandler := handlers.NewSelectHandler(selectTasks)
 	selectTaskHandler := handlers.NewSelectOneTaskHandler(selectTask)
 

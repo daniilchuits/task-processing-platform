@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"task-service/internal/domain"
 	"task-service/internal/interfaces"
-	"task-service/internal/messaging/rabbitmq"
 	"task-service/internal/transport"
 	"task-service/internal/usecases"
 )
@@ -20,13 +19,11 @@ type postHandler struct {
 func NewPostHandler(
 	check interfaces.Checker,
 	post interfaces.Poster,
-	pub rabbitmq.MyPublisher,
 ) *postHandler {
 	return &postHandler{
 		uc: usecases.PostUsecase{
-			Check:   check,
-			Post:    post,
-			Publish: &pub,
+			Check: check,
+			Post:  post,
 		},
 	}
 }
@@ -74,9 +71,6 @@ func (post *postHandler) PostTask(w http.ResponseWriter, r *http.Request) {
 			return
 		case errors.Is(err, domain.ErrInserting):
 			http.Error(w, domain.ErrInserting.Error(), 500)
-			return
-		case errors.Is(err, domain.ErrPublishingMessageToRabbitMQ):
-			http.Error(w, domain.ErrPublishingMessageToRabbitMQ.Error(), 500)
 			return
 		default:
 			log.Println("Internal error:", err)

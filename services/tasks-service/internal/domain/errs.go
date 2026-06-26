@@ -38,7 +38,4 @@ var (
 	ErrStrconvId    error = errors.New("Error converting task's id")
 
 	// RabbitMQ
-	ErrMakingRabbitMQConnection    error = errors.New("Error making RabbitMQ connection")
-	ErrCreatingPublisher           error = errors.New("Error creating publisher")
-	ErrPublishingMessageToRabbitMQ error = errors.New("Error publishin mgessage to RabbitMQ")
 )
