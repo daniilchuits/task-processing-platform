@@ -12,12 +12,12 @@ import (
 	"task-service/database"
 	"task-service/internal/handlers"
 	"task-service/internal/messages/rabbitmq"
+	"task-service/internal/messages/rabbitmq/producer"
 	"task-service/internal/repo"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	_ "github.com/lib/pq"
-	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 func fatalError(err error, msg string) {
@@ -33,7 +33,7 @@ func main() {
 	password := os.Getenv("PASSWORD")
 	brockerURI := os.Getenv("BROKER_URI")
 	queue := os.Getenv("QUEUE_NAME")
-	conn, err := amqp.Dial(brockerURI) // заново подключить брокер, не забыть hostname: rabbitmq
+	conn, err := rabbitmq.ConnectToRabbitMQ(brockerURI)
 	fatalError(err, "connecting to rabbitmq")
 	defer conn.Close()
 
@@ -50,7 +50,7 @@ func main() {
 	fatalError(err, "pinging db")
 
 	dbManager := database.NewDbManager(db)
-	rabbitmqManager := rabbitmq.NewConnManager(conn)
+	rabbitmqManager := producer.NewConnManager(conn)
 
 	err = dbManager.CreateTable()
 	fatalError(err, "creating table tasks")

@@ -1,23 +1,24 @@
-package rabbitmq
+package producer
 
 import (
 	"context"
 	"log"
 	"task-service/internal/domain"
+	"task-service/internal/messages/rabbitmq"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 func (conn *connManager) PublishMsg(ctx context.Context, msg, queueName string) error {
 
-	ch, err := createChannel(conn.conn)
+	ch, err := rabbitmq.CreateChannel(conn.conn)
 	if err != nil {
 		log.Println("Creating channel in rabbitmq err:", err)
 		return domain.ErrCreatingChannel
 	}
 	defer ch.Close()
 
-	q, err := createQueue(ch, queueName)
+	q, err := rabbitmq.CreateQueue(ch, queueName)
 	if err != nil {
 		log.Println("Creating queue in rabbitmq err:", err)
 		return domain.ErrCreatingQueue
