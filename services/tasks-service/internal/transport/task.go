@@ -8,6 +8,7 @@ type Task struct {
 	Status             string `json:"status"`
 	Typ                string `json:"type"`
 	PhraseCountTxt     int    `json:"phrase_count,omitempty"`
+	LinesTxt           int    `json:"lines"`
 	MainColorsJpg      string `json:"main_colors,omitempty"`
 	PhotoResolutionJpg string `json:"photo_resolution,omitempty"`
 	AudioLengthMp3     int    `json:"audio_length,omitempty"`

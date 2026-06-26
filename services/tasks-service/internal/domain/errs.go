@@ -41,4 +41,5 @@ var (
 	ErrCreatingChannel error = errors.New("Error creating channel to rabbitmq")
 	ErrCreatingQueue   error = errors.New("Error creating queue in rabbitmq")
 	ErrSendingMessage  error = errors.New("Error sending message to rabbitmq")
+	ErrMarshaling      error = errors.New("Error murshaling message")
 )

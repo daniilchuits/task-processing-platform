@@ -24,9 +24,9 @@ func NewPostHandler(
 ) *postHandler {
 	return &postHandler{
 		uc: usecases.PostUsecase{
-			Check:     check,
-			Post:      post,
-			Publish:   publish,
+			Checker:   check,
+			Poster:    post,
+			Publisher: publish,
 			QueueName: queueName,
 		},
 	}

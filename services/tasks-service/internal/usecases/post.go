@@ -11,15 +11,15 @@ import (
 )
 
 type PostUsecase struct {
-	Check     interfaces.Checker
-	Post      interfaces.Poster
-	Publish   interfaces.Publisher
+	Checker   interfaces.Checker
+	Poster    interfaces.Poster
+	Publisher interfaces.Publisher
 	QueueName string
 }
 
 func (post *PostUsecase) Exec(userID int, file multipart.File, header *multipart.FileHeader) (*domain.Task, error) {
 
-	exists, err := post.Check.Check(userID, header.Filename)
+	exists, err := post.Checker.Check(userID, header.Filename)
 	if err != nil {
 		log.Println("Checking existence err:", err)
 		return nil, domain.ErrDuringCheckingExistence
@@ -42,11 +42,11 @@ func (post *PostUsecase) Exec(userID int, file multipart.File, header *multipart
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	if err = post.Publish.PublishMsg(ctx, path, post.QueueName); err != nil {
+	if err = post.Publisher.PublishMsg(ctx, path, fileType, header.Filename); err != nil {
 		return nil, err
 	}
 
-	task, err := post.Post.Insert(
+	task, err := post.Poster.Insert(
 		userID,
 		header.Filename,
 		path,

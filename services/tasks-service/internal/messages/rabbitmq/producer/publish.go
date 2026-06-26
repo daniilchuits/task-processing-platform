@@ -2,6 +2,7 @@ package producer
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"task-service/internal/domain"
 	"task-service/internal/messages/rabbitmq"
@@ -9,7 +10,15 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-func (conn *connManager) PublishMsg(ctx context.Context, msg, queueName string) error {
+type Message struct {
+	Path     string `json:"path"`
+	Filetype string `json:"filetype"`
+}
+
+func (conn *connManager) PublishMsg(
+	ctx context.Context,
+	path, filetype, queueName string,
+) error {
 
 	ch, err := rabbitmq.CreateChannel(conn.conn)
 	if err != nil {
@@ -24,6 +33,17 @@ func (conn *connManager) PublishMsg(ctx context.Context, msg, queueName string) 
 		return domain.ErrCreatingQueue
 	}
 
+	newMessage := Message{
+		Path:     path,
+		Filetype: filetype,
+	}
+
+	body, err := json.Marshal(newMessage)
+	if err != nil {
+		log.Println("Error marshaling newMessage:", err)
+		return domain.ErrMarshaling
+	}
+
 	if err = ch.PublishWithContext(
 		ctx,
 		"",
@@ -32,7 +52,7 @@ func (conn *connManager) PublishMsg(ctx context.Context, msg, queueName string) 
 		false,
 		amqp.Publishing{
 			ContentType: "text/plain",
-			Body:        []byte(msg),
+			Body:        body,
 		},
 	); err != nil {
 		log.Println("Error publishing message to rabbitmq:", err)

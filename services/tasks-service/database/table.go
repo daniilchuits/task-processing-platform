@@ -21,6 +21,7 @@ func (manager dbManager) CreateTable() error {
 			status TEXT NOT NULL,
 			type TEXT NOT NULL,
 			phrase_count_txt INT,
+			lines_txt INT,
 			main_colors_jpg TEXT,
 			photo_resolution_jpg TEXT,
 			audio_length_mp3 INT,

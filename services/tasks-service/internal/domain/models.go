@@ -8,6 +8,7 @@ type Task struct {
 	Status             string
 	Typ                string
 	PhraseCountTxt     *int
+	Lines              *int
 	MainColorsJpg      *string
 	PhotoResolutionJpg *string
 	AudioLengthMp3     *int

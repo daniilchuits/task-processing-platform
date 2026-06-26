@@ -99,7 +99,14 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq
 
   worker: #TODO 3 workers
-    image: alpine
+    build: ./worker
+    env_file:
+      - ./worker/.env
+    depends_on:
+      rabbitmq: 
+        condition: service_healthy
+    networks:
+      - backend
 
   file-service: #TODO
     image: alpine

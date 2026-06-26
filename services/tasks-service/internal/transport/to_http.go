@@ -15,6 +15,9 @@ func ToHTTPTask(task domain.Task) Task {
 	if task.PhraseCountTxt != nil {
 		taskHTTP.PhraseCountTxt = *task.PhraseCountTxt
 	}
+	if task.Lines != nil {
+		taskHTTP.LinesTxt = *task.Lines
+	}
 	if task.MainColorsJpg != nil {
 		taskHTTP.MainColorsJpg = *task.MainColorsJpg
 	}
