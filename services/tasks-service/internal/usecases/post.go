@@ -1,16 +1,20 @@
 package usecases
 
 import (
+	"context"
 	"log"
 	"mime/multipart"
 	"path/filepath"
 	"task-service/internal/domain"
 	"task-service/internal/interfaces"
+	"time"
 )
 
 type PostUsecase struct {
-	Check interfaces.Checker
-	Post  interfaces.Poster
+	Check     interfaces.Checker
+	Post      interfaces.Poster
+	Publish   interfaces.Publisher
+	QueueName string
 }
 
 func (post *PostUsecase) Exec(userID int, file multipart.File, header *multipart.FileHeader) (*domain.Task, error) {
@@ -34,6 +38,13 @@ func (post *PostUsecase) Exec(userID int, file multipart.File, header *multipart
 	}
 
 	path := filepath.Join(domain.UploadDir, header.Filename)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err = post.Publish.PublishMsg(ctx, path, post.QueueName); err != nil {
+		return nil, err
+	}
 
 	task, err := post.Post.Insert(
 		userID,

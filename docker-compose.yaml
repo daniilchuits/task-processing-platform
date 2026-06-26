@@ -1,3 +1,8 @@
+volumes:
+  rabbitmq_data:
+  pg_tasks:
+  pg_auth:
+
 services:
   gateway-api: 
     build: ./services/gateway-api
@@ -45,13 +50,8 @@ services:
 
   tasks-service: 
     build: ./services/tasks-service
-    environment:
-      - USER=${DB_USER}
-      - DB=${TASKS_DB}
-      - PASSWORD=${TASKS_PASSWORD}
-      - HOST=tasks_postgres
-      - BROKER_URI=${BROKER_URI}
-      - QUEUE_NAME=${QUEUE_NAME}
+    env_file:
+      - ./services/tasks-service/.env
     depends_on:
       tasks-postgres:
         condition: service_healthy
@@ -85,6 +85,7 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    hostname: rabbitmq 
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "check_running"]
       interval: 5s
@@ -114,8 +115,3 @@ services:
 networks:
   frontend:
   backend:
-
-volumes:
-  rabbitmq_data:
-  pg_tasks:
-  pg_auth:

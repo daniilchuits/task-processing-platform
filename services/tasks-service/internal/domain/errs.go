@@ -38,4 +38,7 @@ var (
 	ErrStrconvId    error = errors.New("Error converting task's id")
 
 	// RabbitMQ
+	ErrCreatingChannel error = errors.New("Error creating channel to rabbitmq")
+	ErrCreatingQueue   error = errors.New("Error creating queue in rabbitmq")
+	ErrSendingMessage  error = errors.New("Error sending message to rabbitmq")
 )

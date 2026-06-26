@@ -19,11 +19,15 @@ type postHandler struct {
 func NewPostHandler(
 	check interfaces.Checker,
 	post interfaces.Poster,
+	publish interfaces.Publisher,
+	queueName string,
 ) *postHandler {
 	return &postHandler{
 		uc: usecases.PostUsecase{
-			Check: check,
-			Post:  post,
+			Check:     check,
+			Post:      post,
+			Publish:   publish,
+			QueueName: queueName,
 		},
 	}
 }
@@ -71,6 +75,15 @@ func (post *postHandler) PostTask(w http.ResponseWriter, r *http.Request) {
 			return
 		case errors.Is(err, domain.ErrInserting):
 			http.Error(w, domain.ErrInserting.Error(), 500)
+			return
+		case errors.Is(err, domain.ErrCreatingChannel):
+			http.Error(w, domain.ErrCreatingChannel.Error(), 500)
+			return
+		case errors.Is(err, domain.ErrCreatingQueue):
+			http.Error(w, domain.ErrCreatingQueue.Error(), 500)
+			return
+		case errors.Is(err, domain.ErrSendingMessage):
+			http.Error(w, domain.ErrSendingMessage.Error(), 500)
 			return
 		default:
 			log.Println("Internal error:", err)

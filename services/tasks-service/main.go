@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"task-service/database"
 	"task-service/internal/handlers"
+	"task-service/internal/messages/rabbitmq"
 	"task-service/internal/repo"
 	"time"
 
@@ -19,15 +20,22 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
+func fatalError(err error, msg string) {
+	if err != nil {
+		log.Panicf("Fail on %s with error: %v", msg, err)
+	}
+}
+
 func main() {
 
 	user := os.Getenv("USER")
 	dbname := os.Getenv("DB")
 	password := os.Getenv("PASSWORD")
 	brockerURI := os.Getenv("BROKER_URI")
-	log.Println("Broker URI:", brockerURI)
 	queue := os.Getenv("QUEUE_NAME")
-	amqp.Dial() // заново подключить брокер, не забыть hostname: rabbitmq
+	conn, err := amqp.Dial(brockerURI) // заново подключить брокер, не забыть hostname: rabbitmq
+	fatalError(err, "connecting to rabbitmq")
+	defer conn.Close()
 
 	cnnStr := fmt.Sprintf(
 		"host=tasks-postgres user=%s password=%s dbname=%s sslmode=disable",
@@ -35,19 +43,17 @@ func main() {
 	)
 
 	db, err := sql.Open("postgres", cnnStr)
-	if err != nil {
-		log.Fatal("Error openning db:", err)
-	}
+	fatalError(err, "openning db")
 	defer db.Close()
 
-	if err = db.Ping(); err != nil {
-		log.Fatal("Error pinging db:", err)
-	}
+	err = db.Ping()
+	fatalError(err, "pinging db")
 
 	dbManager := database.NewDbManager(db)
-	if err = dbManager.CreateTable(); err != nil {
-		log.Fatal("Error creating table tasks:", err)
-	}
+	rabbitmqManager := rabbitmq.NewConnManager(conn)
+
+	err = dbManager.CreateTable()
+	fatalError(err, "creating table tasks")
 
 	repoManager := repo.NewRepoManager(db)
 
@@ -58,6 +64,7 @@ func main() {
 
 	ctx := context.Background()
 
+	postTaskHandler := handlers.NewPostHandler(check, post, rabbitmqManager, queue)
 	selectTasksHandler := handlers.NewSelectHandler(selectTasks)
 	selectTaskHandler := handlers.NewSelectOneTaskHandler(selectTask)
 
