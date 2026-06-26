@@ -2,6 +2,7 @@ volumes:
   rabbitmq_data:
   pg_tasks:
   pg_auth:
+  files:
 
 services:
   gateway-api: 
@@ -58,7 +59,7 @@ services:
       rabbitmq:
         condition: service_healthy
     volumes:
-      - ./services/tasks-service/uploads:/app/uploads
+      - files:/app/uploads
     networks:
       - frontend
       - backend
