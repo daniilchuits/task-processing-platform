@@ -11,8 +11,6 @@ func CreateQueue(ch *amqp.Channel, queueName string) (amqp.Queue, error) {
 		false,
 		false,
 		false,
-		amqp.Table{
-			amqp.QueueTypeArg: amqp.QueueTypeQuorum,
-		},
+		nil,
 	)
 }

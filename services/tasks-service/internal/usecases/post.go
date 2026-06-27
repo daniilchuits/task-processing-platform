@@ -42,10 +42,6 @@ func (post *PostUsecase) Exec(userID int, file multipart.File, header *multipart
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	if err = post.Publisher.PublishMsg(ctx, path, fileType, header.Filename); err != nil {
-		return nil, err
-	}
-
 	task, err := post.Poster.Insert(
 		userID,
 		header.Filename,
@@ -55,5 +51,10 @@ func (post *PostUsecase) Exec(userID int, file multipart.File, header *multipart
 	if err != nil {
 		return nil, domain.ErrInserting
 	}
+
+	if err = post.Publisher.PublishMsg(ctx, userID, path, fileType, post.QueueName); err != nil {
+		return nil, err
+	}
+
 	return task, nil
 }

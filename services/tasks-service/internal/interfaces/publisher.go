@@ -3,5 +3,5 @@ package interfaces
 import "context"
 
 type Publisher interface {
-	PublishMsg(ctx context.Context, path, filetype, queueName string) error
+	PublishMsg(ctx context.Context, userId int, path, filetype, queueName string) error
 }

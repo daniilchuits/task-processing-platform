@@ -2,14 +2,17 @@ package main
 
 import (
 	"context"
+	"database/sql"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
+	difftypes "worker/diff_types"
 	"worker/rabbitmq"
+	"worker/repo"
 
-	amqp "github.com/rabbitmq/amqp091-go"
+	_ "github.com/lib/pq"
 )
 
 func fatalError(err error, msg string) {
@@ -20,17 +23,30 @@ func fatalError(err error, msg string) {
 
 func main() {
 
-	ctx, stop := signal.NotifyContext(
-		context.Background(),
-		syscall.SIGINT,
-		syscall.SIGTERM,
-	)
-	defer stop()
-
 	brokerURI := os.Getenv("BROKER_URI")
 	queueName := os.Getenv("QUEUE_NAME")
 
-	conn, err := amqp.Dial(brokerURI)
+	user := os.Getenv("USER")
+	dbname := os.Getenv("DB_NAME")
+	password := os.Getenv("PASSWORD")
+
+	cnnStr := fmt.Sprintf(
+		"host=tasks-postgres user=%s password=%s dbname=%s sslmode=disable",
+		user, password, dbname,
+	)
+
+	log.Println("DB credentials:", cnnStr)
+
+	db, err := sql.Open("postgres", cnnStr)
+	fatalError(err, "openning db")
+	defer db.Close()
+
+	err = db.Ping()
+	fatalError(err, "pinging db")
+
+	tasksRepo := repo.NewTasksRepo(db)
+
+	conn, err := rabbitmq.Connect(brokerURI)
 	fatalError(err, "connecting to rabbitMQ")
 	defer conn.Close()
 
@@ -41,12 +57,33 @@ func main() {
 	q, err := rabbitmq.CreateQueue(ch, queueName)
 	fatalError(err, "creating queue")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	deliveryChan, err := rabbitmq.Consume(ctx, ch, q.Name)
+	deliveryChan, err := rabbitmq.Consume(ch, q.Name)
 	fatalError(err, "receiving delivery")
 
-	<-ctx.Done()
+	notifyCtx, stop := signal.NotifyContext(
+		context.Background(),
+		syscall.SIGINT,
+		syscall.SIGTERM,
+	)
+	defer stop()
+
+	switcher := tasksRepo
+
+	txtUpdate := tasksRepo
+
+	newUltimateStruct := difftypes.NewUltimateStruct(txtUpdate, switcher)
+
+	go func() {
+		for i := 0; i < 2; i++ {
+			for msg := range deliveryChan {
+				if err = newUltimateStruct.DistributeFiles(msg); err != nil {
+					log.Println("Error decoding delivery:", err)
+				}
+				msg.Ack(false)
+			}
+		}
+	}()
+
+	<-notifyCtx.Done()
 	log.Println("Worker done")
 }

@@ -15,7 +15,7 @@ func CreateFile(filename string, file multipart.File) error {
 
 	filepath := filepath.Join(UploadDir, filename)
 
-	if _, err := os.OpenFile(filepath, 0600, os.FileMode(os.O_RDONLY)); err == nil {
+	if _, err := os.OpenFile(filepath, os.O_RDONLY, 0600); err == nil {
 		log.Println("Error checking file existence:", err)
 		return ErrFileExists
 	}
