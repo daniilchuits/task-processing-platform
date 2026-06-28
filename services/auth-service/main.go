@@ -73,7 +73,6 @@ func main() {
 	defer stop()
 
 	go srv.ListenAndServe()
-	log.Println("Auth-service started on:", srv.Addr)
 
 	<-ctx.Done()
 

@@ -35,8 +35,6 @@ func main() {
 		user, password, dbname,
 	)
 
-	log.Println("DB credentials:", cnnStr)
-
 	db, err := sql.Open("postgres", cnnStr)
 	fatalError(err, "openning db")
 	defer db.Close()
@@ -70,8 +68,15 @@ func main() {
 	switcher := tasksRepo
 
 	txtUpdate := tasksRepo
+	jpgUpdate := tasksRepo
+	mp3Update := tasksRepo
 
-	newUltimateStruct := difftypes.NewUltimateStruct(txtUpdate, switcher)
+	newUltimateStruct := difftypes.NewUltimateStruct(
+		txtUpdate,
+		switcher,
+		jpgUpdate,
+		mp3Update,
+	)
 
 	go func() {
 		for i := 0; i < 2; i++ {

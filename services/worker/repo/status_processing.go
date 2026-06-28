@@ -1,6 +1,9 @@
 package repo
 
-import "worker/domain"
+import (
+	"log"
+	"worker/domain"
+)
 
 func (repo tasksRepo) StatusProcessing(userId int, path string) error {
 
@@ -17,6 +20,7 @@ func (repo tasksRepo) StatusProcessing(userId int, path string) error {
 		userId,
 		path,
 	); err != nil {
+		log.Printf("Updating status to 'processing' file %s error: %v\n", path, err)
 		return domain.ErrProcesing
 	}
 	return nil

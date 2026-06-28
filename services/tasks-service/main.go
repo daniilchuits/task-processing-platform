@@ -87,7 +87,6 @@ func main() {
 	defer stop()
 
 	go srv.ListenAndServe()
-	log.Println("Tasks-service started on:", srv.Addr)
 
 	<-ctx.Done()
 

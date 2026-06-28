@@ -1,6 +1,9 @@
 package repo
 
-import "worker/domain"
+import (
+	"log"
+	"worker/domain"
+)
 
 func (repo tasksRepo) StatusFail(userId int, path string) error {
 
@@ -24,6 +27,7 @@ func (repo tasksRepo) StatusFail(userId int, path string) error {
 		userId,
 		path,
 	); err != nil {
+		log.Printf("Updating status to 'failed' file %s error: %v\n", path, err)
 		return domain.ErrFailed
 	}
 	return nil

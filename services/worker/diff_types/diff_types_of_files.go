@@ -3,8 +3,11 @@ package difftypes
 import (
 	"encoding/json"
 	"log"
+	"time"
 	"worker/domain"
 	"worker/interfaces"
+	"worker/jpg"
+	"worker/mp3"
 	"worker/txt"
 
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -18,16 +21,27 @@ type Message struct {
 
 type ultimateStruct struct {
 	txt txt.TxtUpdate
+	jpg jpg.JpegUpdate
+	mp3 mp3.AudioUpdate
 }
 
 func NewUltimateStruct(
-	updater interfaces.TxtUpdater,
+	updaterTxt interfaces.TxtUpdater,
 	switcher interfaces.Switcher,
+	updaterJPG interfaces.JPGUpdater,
+	updaterMP3 interfaces.MP3Updater,
 ) *ultimateStruct {
 	return &ultimateStruct{txt: txt.TxtUpdate{
-		Txt:      updater,
+		Txt:      updaterTxt,
 		Switcher: switcher,
-	}}
+	}, jpg: jpg.JpegUpdate{
+		Switcher: switcher,
+		Update:   updaterJPG,
+	}, mp3: mp3.AudioUpdate{
+		Switcher: switcher,
+		Updater:  updaterMP3,
+	},
+	}
 }
 
 func (ult *ultimateStruct) DistributeFiles(delivery amqp.Delivery) error {
@@ -37,29 +51,29 @@ func (ult *ultimateStruct) DistributeFiles(delivery amqp.Delivery) error {
 		return err
 	}
 
-	log.Println("Received message:", message)
-
 	switch message.Filetype {
 
 	case domain.TxtExtension:
 		if err := ult.txt.Work(message.UserId, message.Path); err != nil {
 			log.Println("Error operating txt:", err)
-		} else {
-			log.Println("Task done")
 		}
+		time.Sleep(2 * time.Second)
+	case domain.JpgExtension:
+		if err := ult.jpg.Work(message.UserId, message.Path); err != nil {
+			log.Println("Error operating jpg:", err)
+		}
+		time.Sleep(5 * time.Second)
+	case domain.Mp3Extension:
+		if err := ult.mp3.Work(message.UserId, message.Path); err != nil {
+			log.Println("Error operating mp3:", err)
+		}
+		time.Sleep(3 * time.Second)
 
 		// case domain.CsvExtension:
 		// 	if err := workCsv(message.Path); err != nil {
 		// 		log.Println("Error operating csv:", err)
 		// 	}
-		// case domain.JpgExtension:
-		// 	if err := workJpg(message.Path); err != nil {
-		// 		log.Println("Error operating jpg:", err)
-		// 	}
-		// case domain.Mp3Extension:
-		// 	if err := workMp3(message.Path); err != nil {
-		// 		log.Println("Error operating mp3:", err)
-		// 	}
+
 		// case domain.PdfExtension:
 		// 	if err := workPdf(message.Path); err != nil {
 		// 		log.Println("Error operating pdf:", err)

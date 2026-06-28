@@ -5,22 +5,21 @@ import (
 	"worker/domain"
 )
 
-func (repo tasksRepo) TxtUpdate(data domain.DataTxt) error {
+func (repo tasksRepo) JPGUpdate(data domain.DataJPG) error {
 
 	query := `
 		UPDATE tasks
-		SET 
-			phrase_count_txt=$1,
-			lines_txt=$2
-		WHERE 
-			user_id=$3
-				AND filepath=$4
+		SET
+			main_colors_jpg=$1,
+			photo_resolution_jpg=$2
+		WHERE user_id=$3
+			AND filepath=$4
 	`
 
 	_, err := repo.db.Exec(
 		query,
-		data.PhrasesCount,
-		data.Lines,
+		data.MainColors,
+		data.Resolution,
 		data.UserId,
 		data.Filepath,
 	)
@@ -28,5 +27,5 @@ func (repo tasksRepo) TxtUpdate(data domain.DataTxt) error {
 		log.Printf("Updating %s error: %v\n", data.Filepath, err)
 		return domain.ErrUpdatingTasks
 	}
-	return nil
+	return err
 }

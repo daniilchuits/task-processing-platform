@@ -19,7 +19,6 @@ func (txt *TxtUpdate) Work(userId int, filepath string) error {
 	if err := txt.Switcher.StatusProcessing(userId, filepath); err != nil {
 		return err
 	}
-	log.Println("Filepath:", filepath)
 
 	f, err := os.OpenFile(filepath, os.O_RDONLY, 0644)
 	if err != nil {
@@ -45,8 +44,6 @@ func (txt *TxtUpdate) Work(userId int, filepath string) error {
 		Lines:        lines,
 		PhrasesCount: words,
 	}
-
-	log.Println("Upd data:", data)
 
 	if err = txt.Txt.TxtUpdate(data); err != nil {
 		log.Println("Updating tasks txt err:", err)
