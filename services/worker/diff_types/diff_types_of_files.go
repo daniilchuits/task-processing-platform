@@ -9,7 +9,6 @@ import (
 	"worker/interfaces"
 	"worker/jpg"
 	"worker/mp3"
-	"worker/pdf"
 	"worker/txt"
 
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -26,7 +25,6 @@ type ultimateStruct struct {
 	jpg jpg.JpegUpdate
 	mp3 mp3.AudioUpdate
 	csv csv.CSVUpdater
-	pdf pdf.PDFUpdate
 }
 
 func NewUltimateStruct(
@@ -35,7 +33,6 @@ func NewUltimateStruct(
 	updaterJPG interfaces.JPGUpdater,
 	updaterMP3 interfaces.MP3Updater,
 	updaterCsv interfaces.CSVUpdater,
-	updaterPDF interfaces.PDFUpdater,
 ) *ultimateStruct {
 	return &ultimateStruct{txt: txt.TxtUpdate{
 		Txt:      updaterTxt,
@@ -49,9 +46,6 @@ func NewUltimateStruct(
 	}, csv: csv.CSVUpdater{
 		Switcher: switcher,
 		Update:   updaterCsv,
-	}, pdf: pdf.PDFUpdate{
-		Switcher: switcher,
-		Update:   updaterPDF,
 	},
 	}
 }
@@ -85,18 +79,20 @@ func (ult *ultimateStruct) DistributeFiles(delivery amqp.Delivery) error {
 		if err := ult.csv.Work(message.UserId, message.Path); err != nil {
 			log.Println("Error operating csv:", err)
 		}
-	case domain.PdfExtension: // worker для pdf не работает, я не разобрался каво,
-		// попросил блядского пидорасного хуесосного чатаджипити помочь, в надежде, что он
-		// хоть чуть-чутьь не апездол. но он полнейший апездал и бболее того, если бы он не
-		// был апездалом, я бы почти ничего не вынес из обработки png
-		// я буквально просрал весь день. ЧАТДЖИПИТИ ПРОСТО ЕБАНЕЙШИЙ ДОЛБОЕБ
-		if err := ult.pdf.Work(message.UserId, message.Path); err != nil {
-			log.Println("Error operating pdf:", err)
+		time.Sleep(time.Second)
+	case domain.ZipExtension:
+		if err := workZip(message.Path); err != nil {
+			log.Println("Error operating zip:", err)
 		}
+		time.Sleep()
 
-		// case domain.ZipExtension:
-		// 	if err := workZip(message.Path); err != nil {
-		// 		log.Println("Error operating zip:", err)
+		// case domain.PdfExtension: // worker для pdf не работает, я не разобрался каво,
+		// 	// попросил блядского пидорасного хуесосного чатаджипити помочь, в надежде, что он
+		// 	// хоть чуть-чутьь не апездол. но он полнейший апездал и бболее того, если бы он не
+		// 	// был апездалом, я бы почти ничего не вынес из обработки png
+		// 	// я буквально просрал весь день. ЧАТДЖИПИТИ ПРОСТО ЕБАНЕЙШИЙ ДОЛБОЕБ
+		// 	if err := ult.pdf.Work(message.UserId, message.Path); err != nil {
+		// 		log.Println("Error operating pdf:", err)
 		// 	}
 	}
 	return nil
