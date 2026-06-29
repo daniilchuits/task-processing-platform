@@ -31,13 +31,14 @@ func (sel *selectHandler) SelectAllTasks(w http.ResponseWriter, r *http.Request)
 		http.Error(w, domain.ErrEmptyUserId.Error(), 400)
 		return
 	}
+	log.Println(1)
 	userId, err := strconv.Atoi(userIdStr)
 	if err != nil {
 		log.Println(domain.ErrConvUserId, ":", userIdStr, " err:", err)
 		http.Error(w, domain.ErrConvUserId.Error(), 400)
 		return
 	}
-
+	log.Println(2)
 	tasksDomain, err := sel.uc.Exec(userId)
 	if err != nil {
 
@@ -54,9 +55,12 @@ func (sel *selectHandler) SelectAllTasks(w http.ResponseWriter, r *http.Request)
 	var tasks []transport.Task
 
 	for _, taskDomain := range *tasksDomain {
-		tasks = append(tasks, transport.ToHTTPTask(taskDomain))
-	}
+		httpTask := transport.ToHTTPTask(taskDomain)
+		log.Printf("%+v\n", httpTask)
 
+		tasks = append(tasks, httpTask)
+	}
+	log.Println(3)
 	if err = json.NewEncoder(w).Encode(tasks); err != nil {
 		log.Println(domain.ErrEncoding, ":", err)
 		http.Error(w, domain.ErrEncoding.Error(), 500)

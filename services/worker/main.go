@@ -70,12 +70,16 @@ func main() {
 	txtUpdate := tasksRepo
 	jpgUpdate := tasksRepo
 	mp3Update := tasksRepo
+	csvUpdate := tasksRepo
+	pdfUpdate := tasksRepo
 
 	newUltimateStruct := difftypes.NewUltimateStruct(
 		txtUpdate,
 		switcher,
 		jpgUpdate,
 		mp3Update,
+		csvUpdate,
+		pdfUpdate,
 	)
 
 	go func() {

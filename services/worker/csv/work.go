@@ -1,19 +1,18 @@
-package mp3
+package csv
 
 import (
+	"encoding/csv"
 	"os"
 	"worker/domain"
 	"worker/interfaces"
-
-	"github.com/hajimehoshi/go-mp3"
 )
 
-type AudioUpdate struct {
+type CSVUpdater struct {
 	Switcher interfaces.Switcher
-	Updater  interfaces.MP3Updater
+	Update   interfaces.CSVUpdater
 }
 
-func (upd *AudioUpdate) Work(userId int, filepath string) error {
+func (upd *CSVUpdater) Work(userId int, filepath string) error {
 
 	if err := upd.Switcher.StatusProcessing(userId, filepath); err != nil {
 		upd.Switcher.StatusFail(userId, filepath)
@@ -27,22 +26,22 @@ func (upd *AudioUpdate) Work(userId int, filepath string) error {
 	}
 	defer f.Close()
 
-	decoder, err := mp3.NewDecoder(f)
+	csvDecoder := csv.NewReader(f)
+	records, err := csvDecoder.ReadAll()
 	if err != nil {
 		upd.Switcher.StatusFail(userId, filepath)
 		return err
 	}
 
-	length := decoder.Length()
-	sample := decoder.SampleRate()
-	durationInt := int(length) / (sample * 4)
-	mp3Data := domain.MP3Data{
+	numLines := len(records)
+
+	data := domain.CsvData{
 		UserId:   userId,
 		Filepath: filepath,
-		Length:   durationInt,
+		Lines:    numLines,
 	}
 
-	if err = upd.Updater.Mp3Udate(mp3Data); err != nil {
+	if err = upd.Update.CSVUpdate(data); err != nil {
 		upd.Switcher.StatusFail(userId, filepath)
 		return err
 	}

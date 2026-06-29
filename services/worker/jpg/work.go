@@ -17,6 +17,7 @@ type JpegUpdate struct {
 func (upd *JpegUpdate) Work(userId int, filepath string) error {
 
 	if err := upd.Switcher.StatusProcessing(userId, filepath); err != nil {
+		upd.Switcher.StatusFail(userId, filepath)
 		return err
 	}
 

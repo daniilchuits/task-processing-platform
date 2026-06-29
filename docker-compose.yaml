@@ -66,6 +66,8 @@ services:
 
   tasks-postgres: 
     image: postgres:17
+    ports:
+      - "5432:5432"
     environment:
       - POSTGRES_DB=${TASKS_DB}
       - POSTGRES_USER=${DB_USER}
@@ -108,7 +110,7 @@ services:
       interval: 25s
       timeout: 20s
       retries: 10
-      start_period: 40s
+      start_period: 100s
     networks:
       - backend
     volumes:
