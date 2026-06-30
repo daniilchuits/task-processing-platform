@@ -7,40 +7,53 @@ import (
 	"strconv"
 	"worker/domain"
 	"worker/interfaces"
+	"worker/rabbitmq"
 )
 
 type JpegUpdate struct {
 	Switcher interfaces.Switcher
 	Update   interfaces.JPGUpdater
+	Produce  interfaces.Producer
 }
 
-func (upd *JpegUpdate) Work(userId int, filepath string) error {
+func (upd *JpegUpdate) Work(id int, filepath string) error {
 
-	if err := upd.Switcher.StatusProcessing(userId, filepath); err != nil {
-		upd.Switcher.StatusFail(userId, filepath)
+	msg := rabbitmq.Msg{
+		Id:     id,
+		Status: domain.FailedStatus,
+	}
+
+	if err := upd.Switcher.StatusProcessing(id, filepath); err != nil {
+		msg.Err = err.Error()
+		upd.Produce.Produce(msg)
 		return err
 	}
 
 	f, err := os.OpenFile(filepath, os.O_RDONLY, 0644)
 	if err != nil {
-		upd.Switcher.StatusFail(userId, filepath)
+		msg.Err = err.Error()
+		upd.Produce.Produce(msg)
 		return err
 	}
 	defer f.Close()
 
 	image, _, err := image.Decode(f)
 	if err != nil {
-		upd.Switcher.StatusFail(userId, filepath)
+		msg.Err = err.Error()
+		upd.Produce.Produce(msg)
 		return err
 	}
 
 	if _, err = f.Seek(0, 0); err != nil {
+		msg.Err = err.Error()
+		upd.Produce.Produce(msg)
 		return err
 	}
 
 	config, err := jpeg.DecodeConfig(f)
 	if err != nil {
-		upd.Switcher.StatusFail(userId, filepath)
+		msg.Err = err.Error()
+		upd.Produce.Produce(msg)
 		return err
 	}
 
@@ -49,16 +62,20 @@ func (upd *JpegUpdate) Work(userId int, filepath string) error {
 	mainColors := process(image)
 
 	jpgData := domain.DataJPG{
-		UserId:     userId,
+		Id:         id,
 		Filepath:   filepath,
 		Resolution: resolution,
 		MainColors: mainColors,
 	}
 
 	if err = upd.Update.JPGUpdate(jpgData); err != nil {
-		upd.Switcher.StatusFail(userId, filepath)
+		msg.Err = err.Error()
+		upd.Produce.Produce(msg)
 		return err
 	}
+
+	msg.Status = domain.FinishedStatus
+	upd.Produce.Produce(msg)
 
 	return nil
 }

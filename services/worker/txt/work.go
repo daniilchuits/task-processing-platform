@@ -2,34 +2,44 @@ package txt
 
 import (
 	"io"
-	"log"
 	"os"
 	"strings"
 	"worker/domain"
 	"worker/interfaces"
+	"worker/rabbitmq"
 )
 
 type TxtUpdate struct {
 	Txt      interfaces.TxtUpdater
 	Switcher interfaces.Switcher
+	Produce  interfaces.Producer
 }
 
-func (txt *TxtUpdate) Work(userId int, filepath string) error {
+func (txt *TxtUpdate) Work(id int, filepath string) error {
 
-	if err := txt.Switcher.StatusProcessing(userId, filepath); err != nil {
+	msg := rabbitmq.Msg{
+		Id:     id,
+		Status: domain.FailedStatus,
+	}
+
+	if err := txt.Switcher.StatusProcessing(id, filepath); err != nil {
+		msg.Err = err.Error()
+		txt.Produce.Produce(msg)
 		return err
 	}
 
 	f, err := os.OpenFile(filepath, os.O_RDONLY, 0644)
 	if err != nil {
-		txt.Switcher.StatusFail(userId, filepath)
+		msg.Err = err.Error()
+		txt.Produce.Produce(msg)
 		return err
 	}
 	defer f.Close()
 
 	byter, err := io.ReadAll(f)
 	if err != nil {
-		txt.Switcher.StatusFail(userId, filepath)
+		msg.Err = err.Error()
+		txt.Produce.Produce(msg)
 		return err
 	}
 
@@ -39,15 +49,20 @@ func (txt *TxtUpdate) Work(userId int, filepath string) error {
 	words := len(strings.Fields(strs))
 
 	data := domain.DataTxt{
-		UserId:       userId,
+		Id:           id,
 		Filepath:     filepath,
 		Lines:        lines,
 		PhrasesCount: words,
 	}
 
 	if err = txt.Txt.TxtUpdate(data); err != nil {
-		log.Println("Updating tasks txt err:", err)
+		msg.Err = err.Error()
+		txt.Produce.Produce(msg)
 		return domain.ErrUpdatingTasks
 	}
+
+	msg.Status = domain.FinishedStatus
+	txt.Produce.Produce(msg)
+
 	return nil
 }

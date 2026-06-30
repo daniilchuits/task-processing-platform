@@ -1,20 +1,20 @@
-package csv
+package zipfile
 
 import (
-	"encoding/csv"
+	"archive/zip"
 	"os"
 	"worker/domain"
 	"worker/interfaces"
 	"worker/rabbitmq"
 )
 
-type CSVUpdater struct {
+type ZipUpdate struct {
 	Switcher interfaces.Switcher
-	Update   interfaces.CSVUpdater
+	Updater  interfaces.ZipUpdater
 	Producer interfaces.Producer
 }
 
-func (upd *CSVUpdater) Work(id int, filepath string) error {
+func (upd *ZipUpdate) Work(id int, filepath string) error {
 
 	msg := rabbitmq.Msg{
 		Id:     id,
@@ -27,7 +27,7 @@ func (upd *CSVUpdater) Work(id int, filepath string) error {
 		return err
 	}
 
-	f, err := os.OpenFile(filepath, os.O_RDONLY, 0644)
+	f, err := os.Open(filepath)
 	if err != nil {
 		msg.Err = err.Error()
 		upd.Producer.Produce(msg)
@@ -35,23 +35,29 @@ func (upd *CSVUpdater) Work(id int, filepath string) error {
 	}
 	defer f.Close()
 
-	csvDecoder := csv.NewReader(f)
-	records, err := csvDecoder.ReadAll()
+	info, err := f.Stat()
 	if err != nil {
 		msg.Err = err.Error()
 		upd.Producer.Produce(msg)
 		return err
 	}
 
-	numLines := len(records)
-
-	data := domain.CsvData{
-		Id:       id,
-		Filepath: filepath,
-		Lines:    numLines,
+	reader, err := zip.NewReader(f, info.Size())
+	if err != nil {
+		msg.Err = err.Error()
+		upd.Producer.Produce(msg)
+		return err
 	}
 
-	if err = upd.Update.CSVUpdate(data); err != nil {
+	files, size := process(reader)
+	data := domain.ZipData{
+		Id:       id,
+		Filepath: filepath,
+		Size:     size,
+		Files:    files,
+	}
+
+	if err = upd.Updater.ZipUpdate(data); err != nil {
 		msg.Err = err.Error()
 		upd.Producer.Produce(msg)
 		return err
@@ -59,6 +65,5 @@ func (upd *CSVUpdater) Work(id int, filepath string) error {
 
 	msg.Status = domain.FinishedStatus
 	upd.Producer.Produce(msg)
-
 	return nil
 }

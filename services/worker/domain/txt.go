@@ -1,7 +1,7 @@
 package domain
 
 type DataTxt struct {
-	UserId       int
+	Id           int
 	Filepath     string
 	Lines        int
 	PhrasesCount int

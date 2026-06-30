@@ -13,7 +13,7 @@ func (repo tasksRepo) TxtUpdate(data domain.DataTxt) error {
 			phrase_count_txt=$1,
 			lines_txt=$2
 		WHERE 
-			user_id=$3
+			id=$3
 				AND filepath=$4
 	`
 
@@ -21,7 +21,7 @@ func (repo tasksRepo) TxtUpdate(data domain.DataTxt) error {
 		query,
 		data.PhrasesCount,
 		data.Lines,
-		data.UserId,
+		data.Id,
 		data.Filepath,
 	)
 	if err != nil {

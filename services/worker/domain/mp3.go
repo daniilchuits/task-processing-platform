@@ -1,7 +1,7 @@
 package domain
 
 type MP3Data struct {
-	UserId   int
+	Id       int
 	Filepath string
 	Length   int
 }

@@ -1,7 +1,7 @@
 package domain
 
 type DataJPG struct {
-	UserId     int
+	Id         int
 	Filepath   string
 	Resolution string
 	MainColors string

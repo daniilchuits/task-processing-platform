@@ -2,10 +2,21 @@ package rabbitmq
 
 import "github.com/rabbitmq/amqp091-go"
 
-func CreateQueue(ch *amqp091.Channel, queueName string) (amqp091.Queue, error) {
+func CreateQueueCosume(ch *amqp091.Channel, queueNameConsume string) (amqp091.Queue, error) {
 
 	return ch.QueueDeclare(
-		queueName,
+		queueNameConsume,
+		true,
+		false,
+		false,
+		false,
+		nil,
+	)
+}
+
+func CreateQueueProduce(ch *amqp091.Channel, queueNameProd string) (amqp091.Queue, error) {
+	return ch.QueueDeclare(
+		queueNameProd,
 		true,
 		false,
 		false,

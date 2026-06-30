@@ -1,7 +1,7 @@
 package domain
 
 type CsvData struct {
-	UserId   int
+	Id       int
 	Filepath string
 	Lines    int
 }

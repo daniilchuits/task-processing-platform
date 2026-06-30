@@ -10,14 +10,14 @@ func (repo tasksRepo) CSVUpdate(data domain.CsvData) error {
 	query := `
 		UPDATE tasks
 		SET num_of_lines_csv=$1
-		WHERE user_id=$2
+		WHERE id=$2
 			AND filepath=$3
 	`
 
 	_, err := repo.db.Exec(
 		query,
 		data.Lines,
-		data.UserId,
+		data.Id,
 		data.Filepath,
 	)
 	if err != nil {

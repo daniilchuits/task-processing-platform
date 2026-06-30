@@ -24,7 +24,8 @@ func fatalError(err error, msg string) {
 func main() {
 
 	brokerURI := os.Getenv("BROKER_URI")
-	queueName := os.Getenv("QUEUE_NAME")
+	queueNameConsume := os.Getenv("QUEUE_NAME_CONSUME")
+	queueNameProduce := os.Getenv("QUEUE_NAME_PRODUCE")
 
 	user := os.Getenv("USER")
 	dbname := os.Getenv("DB_NAME")
@@ -52,10 +53,16 @@ func main() {
 	fatalError(err, "creating channel")
 	defer ch.Close()
 
-	q, err := rabbitmq.CreateQueue(ch, queueName)
-	fatalError(err, "creating queue")
+	qCons, err := rabbitmq.CreateQueueCosume(ch, queueNameConsume)
+	fatalError(err, "creating queue to consume")
 
-	deliveryChan, err := rabbitmq.Consume(ch, q.Name)
+	qProd, err := rabbitmq.CreateQueueProduce(ch, queueNameProduce)
+	fatalError(err, "creating queue to produce")
+
+	rabbimqProducer := rabbitmq.NewRabbitMqProducer(ch, qProd.Name)
+	log.Println(rabbimqProducer)
+
+	deliveryChan, err := rabbitmq.Consume(ch, qCons.Name)
 	fatalError(err, "receiving delivery")
 
 	notifyCtx, stop := signal.NotifyContext(
@@ -71,6 +78,7 @@ func main() {
 	jpgUpdate := tasksRepo
 	mp3Update := tasksRepo
 	csvUpdate := tasksRepo
+	zipUpdate := tasksRepo
 
 	newUltimateStruct := difftypes.NewUltimateStruct(
 		txtUpdate,
@@ -78,16 +86,16 @@ func main() {
 		jpgUpdate,
 		mp3Update,
 		csvUpdate,
+		zipUpdate,
+		rabbimqProducer,
 	)
 
 	go func() {
-		for i := 0; i < 2; i++ {
-			for msg := range deliveryChan {
-				if err = newUltimateStruct.DistributeFiles(msg); err != nil {
-					log.Println("Error decoding delivery:", err)
-				}
-				msg.Ack(false)
+		for msg := range deliveryChan {
+			if err := newUltimateStruct.DistributeFiles(msg); err != nil {
+				log.Println("Error decoding delivery:", err)
 			}
+			msg.Ack(false)
 		}
 	}()
 
