@@ -13,8 +13,7 @@ type Task struct {
 	PhotoResolutionJpg *string
 	AudioLengthMp3     *int
 	NumOfLinesCsv      *int
-	PagesPdf           *int
-	PhotoInDocPdf      *bool
 	SizeAfterUnzipZip  *int
 	ZipFilesZip        *string
+	Error              *string
 }

@@ -30,17 +30,14 @@ func ToHTTPTask(task domain.Task) Task {
 	if task.NumOfLinesCsv != nil {
 		taskHTTP.NumOfLinesCsv = *task.NumOfLinesCsv
 	}
-	if task.PagesPdf != nil {
-		taskHTTP.PagesPdf = *task.PagesPdf
-	}
-	if task.PhotoInDocPdf != nil {
-		taskHTTP.PhotoInDocPdf = *task.PhotoInDocPdf
-	}
 	if task.SizeAfterUnzipZip != nil {
 		taskHTTP.SizeAfterUnzipZip = *task.SizeAfterUnzipZip
 	}
 	if task.ZipFilesZip != nil {
 		taskHTTP.ZipFilesZip = *task.ZipFilesZip
+	}
+	if task.Error != nil {
+		taskHTTP.Error = *task.Error
 	}
 	return taskHTTP
 }

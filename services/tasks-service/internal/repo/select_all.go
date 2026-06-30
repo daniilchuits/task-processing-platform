@@ -21,8 +21,6 @@ func (manager repoManager) SelectAllTasks(userId int) (*[]domain.Task, error) {
 			photo_resolution_jpg,
 			audio_length_mp3,
 			num_of_lines_csv,
-			pages_pdf,
-			photo_in_doc_pdf,
 			size_after_unzip_zip,
 			zip_files_zip
 		FROM tasks
@@ -55,8 +53,6 @@ func (manager repoManager) SelectAllTasks(userId int) (*[]domain.Task, error) {
 			&task.PhotoResolutionJpg,
 			&task.AudioLengthMp3,
 			&task.NumOfLinesCsv,
-			&task.PagesPdf,
-			&task.PhotoInDocPdf,
 			&task.SizeAfterUnzipZip,
 			&task.ZipFilesZip,
 		); err != nil {

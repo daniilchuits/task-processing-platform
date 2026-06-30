@@ -11,14 +11,14 @@ import (
 )
 
 type Message struct {
-	User_id  int    `json:"user_id"`
+	Id       int    `json:"id"`
 	Path     string `json:"path"`
 	Filetype string `json:"filetype"`
 }
 
 func (conn *connManager) PublishMsg(
 	ctx context.Context,
-	userId int,
+	id int,
 	path, filetype, queueName string,
 ) error {
 
@@ -36,7 +36,7 @@ func (conn *connManager) PublishMsg(
 	}
 
 	newMessage := Message{
-		User_id:  userId,
+		Id:       id,
 		Path:     path,
 		Filetype: filetype,
 	}

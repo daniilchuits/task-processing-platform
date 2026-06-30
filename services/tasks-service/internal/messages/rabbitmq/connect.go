@@ -10,7 +10,7 @@ func ConnectToRabbitMQ(brokerURI string) (*amqp091.Connection, error) {
 
 	var err error
 
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 20; i++ {
 
 		var err error
 		conn, err := amqp091.Dial(brokerURI)

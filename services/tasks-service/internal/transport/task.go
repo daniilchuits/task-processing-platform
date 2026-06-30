@@ -13,8 +13,7 @@ type Task struct {
 	PhotoResolutionJpg string `json:"photo_resolution,omitempty"`
 	AudioLengthMp3     int    `json:"audio_length,omitempty"`
 	NumOfLinesCsv      int    `json:"number_of_lines,omitempty"`
-	PagesPdf           int    `json:"pages_count,omitempty"`
-	PhotoInDocPdf      bool   `json:"photo_in_document,omitempty"`
 	SizeAfterUnzipZip  int    `json:"size_after_unzip,omitempty"`
 	ZipFilesZip        string `json:"files_in_zip,omitempty"`
+	Error              string `json:"error,omitempty"`
 }

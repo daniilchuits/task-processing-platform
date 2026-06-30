@@ -92,6 +92,8 @@ services:
         condition: service_healthy
       tasks-postgres:
         condition: service_healthy
+    deploy:
+      replicas: 2
     networks:
       - backend
     volumes:
@@ -115,19 +117,18 @@ services:
       - backend
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
-
-  file-service: #TODO
-    image: alpine
-
-  file-postgres: #TODO
-    image: alpine
-
-  notification-service: #TODO
-    image: alpine
-
-  notification-postgres: #TODO
-    image: alpine
-
+  notification-service: 
+    build: ./services/notification-service
+    env_file:
+      - ./services/notification-service/.env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      tasks-postgres:
+        condition: service_healthy
+    networks:
+      - backend
+    
 networks:
   frontend:
   backend:

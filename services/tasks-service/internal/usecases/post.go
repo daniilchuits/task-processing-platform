@@ -2,7 +2,6 @@ package usecases
 
 import (
 	"context"
-	"log"
 	"mime/multipart"
 	"path/filepath"
 	"task-service/internal/domain"
@@ -21,7 +20,6 @@ func (post *PostUsecase) Exec(userID int, file multipart.File, header *multipart
 
 	exists, err := post.Checker.Check(userID, header.Filename)
 	if err != nil {
-		log.Println("Checking existence err:", err)
 		return nil, domain.ErrDuringCheckingExistence
 	}
 	if exists {
@@ -52,7 +50,7 @@ func (post *PostUsecase) Exec(userID int, file multipart.File, header *multipart
 		return nil, domain.ErrInserting
 	}
 
-	if err = post.Publisher.PublishMsg(ctx, userID, path, fileType, post.QueueName); err != nil {
+	if err = post.Publisher.PublishMsg(ctx, task.Id, path, fileType, post.QueueName); err != nil {
 		return nil, err
 	}
 
