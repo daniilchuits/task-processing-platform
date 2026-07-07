@@ -27,6 +27,15 @@ func NewRegisterHandler(
 	}
 }
 
+// @Summary Registrate user
+// @Description Inserts new login and password into table users, if login doesn't already exist
+// @Tags Users
+// @Produce json
+// @Success 200 {object} transportation.Credentials
+// @Failure 400 {string} string
+// @Failure 500 {string} string
+// @Failure 502 {string} string
+// @Router /register [post]
 func (reg *registerHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 	var credHTTP transportation.Credentials

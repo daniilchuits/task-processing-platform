@@ -32,6 +32,16 @@ func NewPostHandler(
 	}
 }
 
+// @Summary Post Task
+// @Description Check if task (file with this name) exists and posts it
+// @Tags Tasks
+// @Accept multipart/form-data
+// @Param file formData file true "File to upload"
+// @Produce json
+// @Success 200 {object} transport.Task
+// @Failure 400 {string} string
+// @Failure 500 {string} string
+// @Router / [post]
 func (post *postHandler) PostTask(w http.ResponseWriter, r *http.Request) {
 
 	userIdStr := r.Header.Get("user_id")

@@ -1,7 +1,13 @@
+// @title Auth API
+// @version 1.0
+// @description API for register, login user and give him jwt
+// @BasePath /auth/
+// schemes http
 package main
 
 import (
 	"auth/database"
+	_ "auth/docs"
 	"auth/internal/handlers"
 	"auth/internal/repo"
 	"context"
@@ -16,6 +22,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	_ "github.com/lib/pq"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func main() {
@@ -57,6 +64,7 @@ func main() {
 	r := chi.NewRouter()
 	r.Post("/auth/register", register.RegisterUser)
 	r.Post("/auth/login", login.LoginUser)
+	r.Handle("/auth/swagger/*", httpSwagger.WrapHandler) // 404 не находит swagger
 
 	srv := &http.Server{
 		Addr:    ":8081",

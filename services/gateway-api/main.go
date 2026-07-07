@@ -36,6 +36,7 @@ func main() {
 
 	authProxy := httputil.NewSingleHostReverseProxy(authURL)
 	tasksProxy := httputil.NewSingleHostReverseProxy(tasksURL)
+	tasksProxyWithoutM := httputil.NewSingleHostReverseProxy(tasksURL)
 
 	tasksProtected := secret.JwtMiddlewear(tasksProxy)
 
@@ -49,6 +50,10 @@ func main() {
 	r.Handle(
 		"/auth*",
 		authProxy,
+	)
+	r.Handle(
+		"/task/swagger/*",
+		tasksProxyWithoutM,
 	)
 	r.Handle(
 		"/task*",

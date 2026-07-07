@@ -24,6 +24,14 @@ func NewSelectHandler(sel interfaces.SelecterAll) *selectHandler {
 	}
 }
 
+// @Summary Get tasks
+// @Description Get all users tasks
+// @Tags Tasks
+// @Produce json
+// @Success 200 {array} transport.Task
+// @Failure 400 {string} string
+// @Failure 500 {string} string
+// @Router / [get]
 func (sel *selectHandler) SelectAllTasks(w http.ResponseWriter, r *http.Request) {
 
 	userIdStr := r.Header.Get("user_id")
@@ -31,14 +39,12 @@ func (sel *selectHandler) SelectAllTasks(w http.ResponseWriter, r *http.Request)
 		http.Error(w, domain.ErrEmptyUserId.Error(), 400)
 		return
 	}
-	log.Println(1)
 	userId, err := strconv.Atoi(userIdStr)
 	if err != nil {
 		log.Println(domain.ErrConvUserId, ":", userIdStr, " err:", err)
 		http.Error(w, domain.ErrConvUserId.Error(), 400)
 		return
 	}
-	log.Println(2)
 	tasksDomain, err := sel.uc.Exec(userId)
 	if err != nil {
 
@@ -60,7 +66,6 @@ func (sel *selectHandler) SelectAllTasks(w http.ResponseWriter, r *http.Request)
 
 		tasks = append(tasks, httpTask)
 	}
-	log.Println(3)
 	if err = json.NewEncoder(w).Encode(tasks); err != nil {
 		log.Println(domain.ErrEncoding, ":", err)
 		http.Error(w, domain.ErrEncoding.Error(), 500)

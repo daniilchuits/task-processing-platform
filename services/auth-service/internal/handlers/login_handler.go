@@ -29,6 +29,14 @@ func NewLoginHandler(
 	}
 }
 
+// @Summary Login User
+// @Description Check if user exists and gives him jwt
+// @Tags Users
+// @Produce json
+// @Success 200 {object} transportation.JWT
+// @Failure 400 {string} string
+// @Failure 500 {string} string
+// @Router /login [post]
 func (login *loginHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 
 	var cred transportation.Credentials

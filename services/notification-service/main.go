@@ -48,9 +48,8 @@ func main() {
 	connManager := rabbitmq.NewConnManager(conn, queueName)
 	dbManager := repo.NewNotifyRepo(db)
 
-	q, err := connManager.CreateQueue()
+	_, err = connManager.CreateQueue()
 	fatalError(err, "create queue")
-	log.Println("queue for noitfication:", q.Name)
 
 	delivery, err := connManager.Consume()
 	fatalError(err, "consume messages")

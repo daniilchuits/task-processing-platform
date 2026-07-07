@@ -60,7 +60,6 @@ func main() {
 	fatalError(err, "creating queue to produce")
 
 	rabbimqProducer := rabbitmq.NewRabbitMqProducer(ch, qProd.Name)
-	log.Println(rabbimqProducer)
 
 	deliveryChan, err := rabbitmq.Consume(ch, qCons.Name)
 	fatalError(err, "receiving delivery")
