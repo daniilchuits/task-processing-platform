@@ -1,3 +1,8 @@
+// @title Tasks API
+// @version 1.0
+// @description API for uploading tasks, checking their status
+// @BasePath /task
+// schemes http
 package main
 
 import (
@@ -10,6 +15,7 @@ import (
 	"os/signal"
 	"syscall"
 	"task-service/database"
+	_ "task-service/docs"
 	"task-service/internal/handlers"
 	"task-service/internal/messages/rabbitmq"
 	"task-service/internal/messages/rabbitmq/producer"
@@ -18,6 +24,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	_ "github.com/lib/pq"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func fatalError(err error, msg string) {
@@ -70,9 +77,10 @@ func main() {
 
 	r := chi.NewMux()
 
-	r.Post("/task", postTaskHandler.PostTask)
-	r.Get("/task", selectTasksHandler.SelectAllTasks)
+	r.Post("/task/", postTaskHandler.PostTask)
+	r.Get("/task/", selectTasksHandler.SelectAllTasks)
 	r.Get("/task/{id}", selectTaskHandler.SelectTaskById)
+	r.Handle("/task/swagger/*", httpSwagger.WrapHandler)
 
 	srv := &http.Server{
 		Addr:    ":8082",

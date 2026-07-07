@@ -1,0 +1,120 @@
+basePath: /task
+definitions:
+  transport.Task:
+    properties:
+      audio_length:
+        type: integer
+      error:
+        type: string
+      filename:
+        type: string
+      filepath:
+        type: string
+      files_in_zip:
+        type: string
+      id:
+        type: integer
+      lines:
+        type: integer
+      main_colors:
+        type: string
+      number_of_lines:
+        type: integer
+      photo_resolution:
+        type: string
+      phrase_count:
+        type: integer
+      size_after_unzip:
+        type: integer
+      status:
+        type: string
+      type:
+        type: string
+      user_id:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: API for uploading tasks, checking their status
+  title: Tasks API
+  version: "1.0"
+paths:
+  /:
+    get:
+      description: Get all users tasks
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/transport.Task'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get tasks
+      tags:
+      - Tasks
+    post:
+      consumes:
+      - multipart/form-data
+      description: Check if task (file with this name) exists and posts it
+      parameters:
+      - description: File to upload
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/transport.Task'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Post Task
+      tags:
+      - Tasks
+  /{id}:
+    get:
+      description: Get one user's task
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/transport.Task'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get one task
+      tags:
+      - Tasks
+swagger: "2.0"

@@ -1,0 +1,70 @@
+basePath: /auth/
+definitions:
+  transportation.Credentials:
+    properties:
+      id:
+        type: integer
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+  transportation.JWT:
+    properties:
+      token:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: API for register, login user and give him jwt
+  title: Auth API
+  version: "1.0"
+paths:
+  /login:
+    post:
+      description: Check if user exists and gives him jwt
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/transportation.JWT'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Login User
+      tags:
+      - Users
+  /register:
+    post:
+      description: Inserts new login and password into table users, if login doesn't
+        already exist
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/transportation.Credentials'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+        "502":
+          description: Bad Gateway
+          schema:
+            type: string
+      summary: Registrate user
+      tags:
+      - Users
+swagger: "2.0"

@@ -26,6 +26,15 @@ func NewSelectOneTaskHandler(sel interfaces.Selecter) *selOneTask {
 	}
 }
 
+// @Summary Get one task
+// @Description Get one user's task
+// @Tags Tasks
+// @Produce json
+// @Param id path int true "Task ID"
+// @Success 200 {object} transport.Task
+// @Failure 400 {string} string
+// @Failure 500 {string} string
+// @Router /{id} [get]
 func (sel *selOneTask) SelectTaskById(w http.ResponseWriter, r *http.Request) {
 
 	userIdStr := r.Header.Get("user_id")
