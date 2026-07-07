@@ -17,9 +17,6 @@ import (
 
 func main() {
 
-	// slog.Log() // добавить продвинутый логер в каждом сервисе
-	// узнать как вообще сервисы получают свой logger
-
 	jwtSecret := os.Getenv("JWT")
 	secret := jwtmiddlewear.NewSecret(jwtSecret)
 

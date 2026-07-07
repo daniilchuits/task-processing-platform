@@ -45,9 +45,7 @@ func main() {
 		log.Fatal("Error creating table:", err)
 	}
 
-	// repoManager228
 	repoManager := repo.NewRepoManager(db)
-	// repoManager228
 
 	check := repoManager
 	insert := repoManager
