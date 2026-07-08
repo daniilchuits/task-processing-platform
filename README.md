@@ -46,25 +46,11 @@ Gateway
 1. Клонируем проект
 2. В терминале переходим в директорию проекта
 3. Устанавливаем переменные окружения
-~/.env:
-```txt
-JWT-SECRET=
-DB_USER=
-AUTH_DB=
-AUTH_PASSWORD=
-TASKS_DB=
-TASKS_PASSWORD=
-```
-
-~/services/tasks-service/.env:
-```txt
-USER=secret_user (один с user во всех сервисах)
-DB=db_for_tasks (один с TASKS_DB в ~/.env)
-PASSWORD=password_for_tasks  (один с TASKS_PASSWORD в ~/.env)
-HOST=tasks_postgres (так как у меня в docker-compose.yaml такое имя сервиса)
-BROKER_URI=amqp://guest:guest@rabbitmq:5672/ (стандартный URI для RabbitMQ)
-QUEUE_NAME=normal_queue
-```
+    .env-файлы есть в:
+    - ./.env
+    - ./services/notification-service/.env
+    - ./services/tasks-service/.env
+    - ./services/worker/.env
 4. Запускаем с помощью `docker compose up --build`
 
 ## API
@@ -108,3 +94,9 @@ Authorization: Bearer <jwt-token>
 Параллельно общей программе, воркеры достают из RabbitMQ файлы (пути к файлам), обрабатывают их и результаты вставляют в PostgreSql
 
 Постишь запись, определяется формат файла (из доступных). Запись публикуется в таблицу `tasks` и отправляется с помощью rabbitMQ в очередь для воркеров. Воркеры работают ассинхронно с основным кодом `api`. Они обрабатывают файл и посылают через rabbitMQ статус файла, когда файл будет обработан (`task finished`/`task failed`). Статус в БД меняет сервис уведомлений, который и получает из rabbitMQ сообщения о статусе (и ошибке).
+
+## Отображение эндпоинтов
+
+Добавил swagger (сайт, который создается по комментариям над пакетом main и хэндлерами, и показывает какие эндпоинты есть у сервисов).
+Swagger для auth-service находится по ссылке `http://localhost:8080/auth/swagger/`. Swagger для task-service находится по ссылке `http://localhost:8080/task/swagger/`.
+Плохая новость, что .env все равно нужно заполнить, но сейчас я сделаю .env.example-файл, чтобы хотя бы чуть-чуть облегчить жизнь.
