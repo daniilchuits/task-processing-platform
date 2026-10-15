@@ -1,3 +1,4 @@
 .env
 statuses.go
 errs.go
+coverage.out
