@@ -2,7 +2,7 @@ package repo
 
 import "auth/internal/domain"
 
-func (repo repoManager) InsertCredentials(credentials domain.Credentials) (*domain.Credentials, error) {
+func (repo repoManagerReal) InsertCredentials(credentials domain.Credentials) (*domain.Credentials, error) {
 
 	query := `
 		INSERT INTO users (login, hashed_password) VALUES

@@ -29,3 +29,5 @@ func TestMakeJWT(t *testing.T) {
 		})
 	}
 }
+
+// test all auth-service

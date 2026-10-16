@@ -1,6 +1,6 @@
 package repo
 
-func (repo *repoManager) SelectPassword(login string) (string, int, error) {
+func (repo repoManagerReal) SelectPassword(login string) (string, int, error) {
 
 	query := `
 		SELECT 

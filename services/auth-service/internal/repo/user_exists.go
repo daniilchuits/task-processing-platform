@@ -1,6 +1,6 @@
 package repo
 
-func (repo repoManager) UserExists(login string) (bool, error) {
+func (repo repoManagerReal) UserExists(login string) (bool, error) {
 
 	query := `
 		SELECT EXISTS(
