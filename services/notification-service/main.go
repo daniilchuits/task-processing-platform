@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"log"
 	"notifycation-service/internal/rabbitmq"
@@ -34,19 +33,15 @@ func main() {
 		"host=tasks-postgres dbname=%s user=%s password=%s sslmode=disable",
 		dbname, user, password,
 	)
-	db, err := sql.Open("postgres", cnnStr)
-	fatalError(err, "open db")
+	db, err := repo.OpenDataBase(cnnStr)
+	fatalError(err, "connect to postgres")
 	defer db.Close()
-
-	err = db.Ping()
-	fatalError(err, "ping db")
 
 	conn, err := rabbitmq.Conn(brokerURI)
 	fatalError(err, "connect to rabbitMQ")
 	defer conn.Close()
 
 	connManager := rabbitmq.NewConnManager(conn, queueName)
-	dbManager := repo.NewNotifyRepo(db)
 
 	_, err = connManager.CreateQueue()
 	fatalError(err, "create queue")
@@ -61,7 +56,7 @@ func main() {
 	)
 	defer stop()
 
-	update := usecase.NewUpdate(dbManager)
+	update := usecase.NewUpdate(db)
 
 	go func() {
 		for msg := range delivery {
