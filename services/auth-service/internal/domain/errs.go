@@ -24,4 +24,7 @@ var (
 
 	// Internal Server error
 	InternalServerError error = errors.New("Internal server error")
+
+	// repoMockErr
+	RepoMockErr error = errors.New("MOCK'S ERROR")
 )
