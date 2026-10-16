@@ -15,8 +15,6 @@ func Conn(brokerURI string) (*amqp091.Connection, error) {
 
 	for i := 0; i < 20; i++ {
 
-		var err error
-
 		conn, err = amqp091.Dial(brokerURI)
 		if err != nil {
 			time.Sleep(time.Second)

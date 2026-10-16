@@ -2,7 +2,7 @@ package repo
 
 import "notifycation-service/internal/domain"
 
-func (manager *notifyRepo) UpdateTasks(data domain.Msg) error {
+func (manager *notifyRepo) UpdateTasks(data domain.Msg) (int, error) {
 
 	query := `
 		UPDATE tasks
@@ -12,11 +12,18 @@ func (manager *notifyRepo) UpdateTasks(data domain.Msg) error {
 		WHERE id=$3
 	`
 
-	_, err := manager.db.Exec(
+	res, err := manager.db.Exec(
 		query,
 		data.Status,
 		data.Err,
 		data.Id,
 	)
-	return err
+	if err != nil {
+		return 0, err
+	}
+	r, err := res.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+	return int(r), nil
 }
