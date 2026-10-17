@@ -2,7 +2,6 @@ package domain
 
 import (
 	"io"
-	"log"
 	"mime/multipart"
 	"os"
 	"path/filepath"
@@ -13,22 +12,37 @@ const UploadDir = "/app/uploads"
 func CreateFile(filename string, file multipart.File) error {
 	defer file.Close()
 
-	filepath := filepath.Join(UploadDir, filename)
+	fPath := filepath.Join(".", UploadDir)
+	fPathCurr := filepath.Join(fPath, filename)
 
-	if _, err := os.OpenFile(filepath, os.O_RDONLY, 0600); err == nil {
-		log.Println("Error checking file existence:", err)
-		return ErrFileExists
+	if err := os.MkdirAll(fPath, 0755); err != nil {
+		return err
 	}
-
-	f, err := os.OpenFile(filepath, os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(fPathCurr, os.O_CREATE|os.O_RDWR, 0644)
 	if err != nil {
-		log.Println("Error creating file:", err)
 		return ErrCreating
 	}
 	defer f.Close()
 
+	// filepathCurr := filepath.Join(UploadDir, filename)
+
+	// if _, err := os.OpenFile(filepathCurr, os.O_RDONLY, 0600); err == nil {
+	// 	return ErrFileExists
+	// }
+
+	// fPath := filepath.Join(".", UploadDir)
+	// err := os.MkdirAll(fPath, 0755)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// f, err := os.OpenFile(filepathCurr, os.O_CREATE|os.O_WRONLY, 0644)
+	// if err != nil {
+	// 	return ErrCreating
+	// }
+	// defer f.Close()
+
 	if _, err = io.Copy(f, file); err != nil {
-		log.Println("Error to copy file:", err)
 		return ErrCopy
 	}
 	return nil

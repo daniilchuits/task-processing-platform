@@ -3,14 +3,18 @@ package database
 import "database/sql"
 
 type dbManager struct {
-	db *sql.DB
+	db db
 }
 
-func NewDbManager(db *sql.DB) dbManager {
-	return dbManager{db: db}
+type db interface {
+	Exec(query string, args ...any) (sql.Result, error)
 }
 
-func (manager dbManager) CreateTable() error {
+func NewDbManager(db db) *dbManager {
+	return &dbManager{db: db}
+}
+
+func (manager *dbManager) CreateTable() error {
 
 	query := `
 		CREATE TABLE IF NOT EXISTS tasks(
