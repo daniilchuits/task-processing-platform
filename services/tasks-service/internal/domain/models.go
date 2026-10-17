@@ -2,7 +2,7 @@ package domain
 
 type Task struct {
 	Id                 int
-	UserId             string
+	UserId             int
 	Filename           string
 	Filepath           string
 	Status             string

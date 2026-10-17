@@ -5,7 +5,7 @@ import (
 	"task-service/internal/domain"
 )
 
-func (manager repoManager) SelectAllTasks(userId int) (*[]domain.Task, error) {
+func (manager repoManager) SelectAllTasks(userId int) ([]domain.Task, error) {
 
 	query := `
 		SELECT
@@ -67,5 +67,5 @@ func (manager repoManager) SelectAllTasks(userId int) (*[]domain.Task, error) {
 		log.Println("Error after scaning rows:", err)
 		return nil, err
 	}
-	return &tasks, nil
+	return tasks, nil
 }

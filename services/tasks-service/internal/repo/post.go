@@ -1,9 +1,12 @@
 package repo
 
 import (
-	"log"
+	"errors"
+	"fmt"
 	"task-service/internal/domain"
 )
+
+var PostingErr error = errors.New("Error posing")
 
 func (manager *repoManager) Insert(userID int, filename, filepath, typ string) (*domain.Task, error) {
 
@@ -30,8 +33,7 @@ func (manager *repoManager) Insert(userID int, filename, filepath, typ string) (
 		&task.Status,
 		&task.Typ,
 	); err != nil {
-		log.Println("Error inserting:", err)
-		return nil, err
+		return nil, fmt.Errorf("%w: %w", PostingErr, err)
 	}
 	return &task, nil
 }
